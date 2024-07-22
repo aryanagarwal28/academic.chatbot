@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My ChatBot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+        header {
+            background: #35424a;
+            color: #ffffff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #456479 3px solid;
+        }
+        header h1 {
+            margin: 0;
+        }
+        #main {
+            background: #ffffff;
+            color: #35424a;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .chatbox {
+            border: 1px solid #35424a;
+            padding: 10px;
+            margin-bottom: 20px;
+            overflow-y: scroll;
+            height: 300px;
+        }
+        .chatbox .message {
+            padding: 10px;
+            border-bottom: 1px solid #f4f4f4;
+        }
+        .chatbox .message.bot {
+            background: #e8491d;
+            color: #ffffff;
+        }
+        .chatbox .message.user {
+            background: #35424a;
+            color: #ffffff;
+        }
+        form {
+            display: flex;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background: #35424a;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>My ChatBot</h1>
+        </div>
+    </header>
+    <div id="main" class="container">
+        <div class="chatbox" id="chatbox"></div>
+        <form id="chat-form">
+            <input type="text" id="question" placeholder="Ask your question...">
+            <input type="submit" value="Send">
+        </form>
+    </div>
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatBox = document.getElementById('chatbox');
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const question = document.getElementById('question').value;
+            if (question.trim() === '') return;
+            
+            addMessage('user', question);
+
+            const response = await fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: question })
+            });
+            
+            const data = await response.json();
+            addMessage('bot', data.response);
+            document.getElementById('question').value = '';
+        });
+
+        function addMessage(role, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', role);
+            messageDiv.textContent = text;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
